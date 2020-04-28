@@ -9,16 +9,17 @@ import java.util.function.Consumer;
 
 public class Server {
     int count = 1;
-    int totalPlayers = 1;
+    int totalPlayers = 0;
     HashMap<Integer, ArrayList> words = new HashMap<>();
     HashMap<Integer, GameInfo> games = new HashMap<>();
     ArrayList<ClientThread> clients = new ArrayList<>();
     TheServer server;
     private Consumer<Serializable> callback;
     int portNumber;
-    ArrayList<String> animals = fileToArray("Animals.txt");
-    ArrayList<String> instruments = fileToArray("Instruments.txt");
-    ArrayList<String> programs = fileToArray("ProgrammingConcepts.txt");
+	Reader rd = new Reader();
+    ArrayList<String> animals = rd.readFile("Animals.txt");
+    ArrayList<String> instruments = rd.readFile("Instruments.txt");
+    ArrayList<String> programs = rd.readFile("ProgrammingConcepts.txt");
 
 
     Server(Consumer<Serializable> call, int portNum){
@@ -30,11 +31,14 @@ public class Server {
 
     }
 
+	/*
     public static ArrayList<String> fileToArray(String fileName) {
         try {
             //FileInputStream fis = new FileInputStream(fileName);
-            Scanner sc = new Scanner(new File(fileName));    //file to be scanned
+			//BufferedReader in = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/Animals.txt")));
             ArrayList<String> arr = new ArrayList<>();
+			
+            Scanner sc = new Scanner(new File(getClass().getResourceAsFile("/config.txt")));    //file to be scanned
             while (sc.hasNextLine()) {
                 String word = sc.nextLine();
                 arr.add(word);
@@ -43,10 +47,12 @@ public class Server {
             return arr;
         }
         catch (Exception e) {
-            System.out.println("fileToArray error." + e.getMessage());
+            System.out.println("fileToArray error: " + e.getMessage());
             return null;
         }
     }
+	*/
+
     public class TheServer extends Thread {
 
         public void run() {

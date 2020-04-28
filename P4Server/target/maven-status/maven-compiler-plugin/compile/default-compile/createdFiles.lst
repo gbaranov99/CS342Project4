@@ -3,4 +3,5 @@ Server$ClientThread.class
 WordGuessServer.class
 Server.class
 Server$TheServer.class
+Reader.class
 WordGuessServer$1.class

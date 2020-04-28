@@ -9,13 +9,15 @@ public class Client extends Thread{
 
     String host;
     int portNumber;
-
+	int ID = -1;
 
 
     Socket socketClient;
 
     ObjectOutputStream out;
     ObjectInputStream in;
+
+	GameInfo clientData;
 
     private Consumer<Serializable> callback;
 
@@ -39,13 +41,12 @@ public class Client extends Thread{
         while(true) {
 
             try {
+				clientData = (GameInfo) in.readObject();
+				callback.accept(clientData);
 
-                //data = (MorraInfo)in.readObject();
-
-
-
-
-
+				if (ID == -1) {
+					ID = clientData.clientID;
+				}
 
             }
             catch(Exception e) {
@@ -55,11 +56,11 @@ public class Client extends Thread{
 
     }
 
-    public void send(int classToPass) {
+    public void send(GameInfo data) {
 
         try {
 
-            out.writeObject(null);
+            out.writeObject(data);
             out.reset();
         } catch (IOException e) {
             // TODO Auto-generated catch block

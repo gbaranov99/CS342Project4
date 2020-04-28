@@ -48,14 +48,15 @@ public class WordGuessServer extends Application {
 
 
 	public static void main(String[] args) {
-		ArrayList<String> animals = Server.fileToArray("Animals.txt");
 		// TODO: make this work?
-		/*
+
+		Reader rd = new Reader();
+    	ArrayList<String> animals = rd.readFile("Animals.txt");
+		
 		for (int i = 0; i < 20; i++) {
 			System.out.println(animals.get(i));
 		}
 		launch(args);
-		*/
 	}
 
 	@Override
