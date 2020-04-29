@@ -3,6 +3,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class Client extends Thread{
@@ -16,7 +17,7 @@ public class Client extends Thread{
 
     ObjectOutputStream out;
     ObjectInputStream in;
-
+    ArrayList<String> letterBank = new ArrayList<>();
 	GameInfo clientData;
 
     private Consumer<Serializable> callback;

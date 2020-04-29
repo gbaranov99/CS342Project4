@@ -7,6 +7,8 @@ import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.TextArea;
@@ -24,10 +26,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -54,18 +59,22 @@ public class WordGuessClient extends Application {
 	Text curCategory;
 	Text guessesLeft;
 	Text curWord;
+	Text playingMsg;
 	TextField guessLetter;
 	Button submitGuess;
 	Button continueBtn;
 	VBox playSceneVbox;
-
+	Text letterBank;
+	
 	// Variables for Results scene
 	Text results;
 	Button returnToGame;
 	Button playAgain;
 	Button quit;
 	VBox resultsSceneVbox;
-
+	BackgroundImage bgImage;
+	Background background;
+	
 	public static void main(String[] args) {
 		launch(args);
 	}
@@ -145,12 +154,56 @@ public class WordGuessClient extends Application {
 			start.setVisible( false);
 			continueBtn.setVisible( false);
 
-			if ( clientConnection.clientData.category == 0)
+			if ( clientConnection.clientData.category == 0) {
+				bgImage = new BackgroundImage(new Image("wolf.jpg"), null, null, null, null);
+				background = new Background(bgImage);
+				playSceneVbox.setBackground(background);
+				
+				curCategory.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				guessesLeft.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				curWord.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				letterBank.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				playingMsg.setFill(Color.BLACK);
+				letterBank.setFill(Color.BLACK);
+				curCategory.setFill(Color.BLACK);
+				guessesLeft.setFill(Color.BLACK);
+				curWord.setFill(Color.BLACK);
+				letterBank.setFill(Color.BLACK);
 				curCategory.setText("Category: Animal");
-			else if ( clientConnection.clientData.category == 1)
+				
+			}
+			else if ( clientConnection.clientData.category == 1) {
+				bgImage = new BackgroundImage(new Image("guitar.jpg"), null, null, null, null);
+				background = new Background(bgImage);
+				playSceneVbox.setBackground(background);
+				curCategory.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				guessesLeft.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				curWord.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				letterBank.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				playingMsg.setFill(Color.RED);
+				letterBank.setFill(Color.RED);
+				curCategory.setFill(Color.BLACK);
+				guessesLeft.setFill(Color.BLACK);
+				curWord.setFill(Color.RED);
+				letterBank.setFill(Color.BLACK);
 				curCategory.setText("Category: Instrument");
-			else if ( clientConnection.clientData.category == 2)
+			}
+			else if ( clientConnection.clientData.category == 2) {
+				bgImage = new BackgroundImage(new Image("coolguy.jpg"), null, null, null, null);
+				background = new Background(bgImage);
+				playSceneVbox.setBackground(background);
+				curCategory.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				guessesLeft.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				curWord.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				letterBank.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+				playingMsg.setFill(Color.WHITE);
+				letterBank.setFill(Color.WHITE);
+				curCategory.setFill(Color.WHITE);
+				guessesLeft.setFill(Color.WHITE);
+				curWord.setFill(Color.WHITE);
+				letterBank.setFill(Color.WHITE);
 				curCategory.setText("Category: Programming");
+			}
 
 			guessesLeft.setText("You have 6 guesses left");
 
@@ -168,9 +221,13 @@ public class WordGuessClient extends Application {
 				clientConnection.clientData.guessLetter = guess;
 				clientConnection.clientData.status = "Made Guess";
 				clientConnection.send( clientConnection.clientData);
-
+				clientConnection.letterBank.add(guess);
 				submitGuess.setDisable( true);
 				continueBtn.setVisible( true);
+				String s = "Letters you have guessed so far: ";
+	            for ( int i = 0; i < clientConnection.letterBank.size(); ++i)
+	                s += clientConnection.letterBank.get(i) + " ";
+	            letterBank.setText( s);
 			}
 			else {
 				guessLetter.setText("invalid! please guess a letter");
@@ -201,12 +258,20 @@ public class WordGuessClient extends Application {
 						&& clientConnection.clientData.instrumentGuesses == -1
 						&& clientConnection.clientData.programmingGuesses == -1) {
 					results.setText( "You Won the Game !");
+					bgImage = new BackgroundImage(new Image("endgame.jpg"), null, null, null, null);
+					background = new Background(bgImage);
+					resultsSceneVbox.setBackground(background);
+					results.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+					results.setFill(Color.WHITE);
 					results.setVisible( true);
 					playAgain.setVisible( true);
 					quit.setVisible( true);
 				}
 				else {
 					results.setText( "You Won the Round ! The word was " + clientConnection.clientData.displayWord);
+					bgImage = new BackgroundImage(new Image("default.jpg"), null, null, null, null);
+					background = new Background(bgImage);
+					resultsSceneVbox.setBackground(background);
 					returnToGame.setVisible( true);
 					results.setVisible( true);
 				}
@@ -227,12 +292,20 @@ public class WordGuessClient extends Application {
 						|| clientConnection.clientData.instrumentGuesses >= 3
 						|| clientConnection.clientData.programmingGuesses >= 3) {
 					results.setText("You Lost the Game !");
+					bgImage = new BackgroundImage(new Image("endgame.jpg"), null, null, null, null);
+					background = new Background(bgImage);
+					resultsSceneVbox.setBackground(background);
+					results.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+					results.setFill(Color.WHITE);
 					results.setVisible( true);
 					playAgain.setVisible(true);
 					quit.setVisible(true);
 				}
 				else {
 					results.setText( "You Lost the Round !");
+					bgImage = new BackgroundImage(new Image("default.jpg"), null, null, null, null);
+					background = new Background(bgImage);
+					resultsSceneVbox.setBackground(background);
 					results.setVisible( true);
 					returnToGame.setVisible( true);
 				}
@@ -261,6 +334,11 @@ public class WordGuessClient extends Application {
 			clientConnection.clientData.displayWord = "";
 			clientConnection.clientData.guessLetter = "";
 			clientConnection.clientData.status = "";
+			clientConnection.letterBank.clear();
+			bgImage = new BackgroundImage(new Image("default.jpg"), null, null, null, null);
+			background = new Background(bgImage);
+			playSceneVbox.setBackground(background);
+			letterBank.setText("Letters you have guessed so far: ");
 			primaryStage.setScene(sceneMap.get("Category"));
 			clientConnection.send( clientConnection.clientData);
 			for ( Node child : resultsSceneVbox.getChildren())
@@ -278,7 +356,9 @@ public class WordGuessClient extends Application {
 			clientConnection.clientData.numOfIncorrectLetters = 0;
 			clientConnection.clientData.displayWord = "";
 			clientConnection.clientData.guessLetter = "";
-			clientConnection.clientData.status = "";
+			clientConnection.clientData.status = "new game";
+			clientConnection.letterBank.clear();
+			letterBank.setText("Letters you have guessed so far: ");
 			primaryStage.setScene(sceneMap.get("Category"));
 			clientConnection.send( clientConnection.clientData);
 			for ( Node child : resultsSceneVbox.getChildren())
@@ -287,6 +367,9 @@ public class WordGuessClient extends Application {
 			chooseAnimal.setDisable( false);
 			chooseInstrument.setDisable( false);
 			chooseProgramming.setDisable( false);
+			bgImage = new BackgroundImage(new Image("default.jpg"), null, null, null, null);
+			background = new Background(bgImage);
+			playSceneVbox.setBackground(background);
 		});
 
 		quit.setOnAction(e -> {
@@ -337,6 +420,9 @@ public class WordGuessClient extends Application {
 		chooseProgramming = new Button("PROGRAMMING CONCEPTS!!!");
 
 		VBox vbox = new VBox(chooseAnimal, chooseInstrument, chooseProgramming);
+		bgImage = new BackgroundImage(new Image("default.jpg"), null, null, null, null);
+		background = new Background(bgImage);
+		vbox.setBackground(background);
 		vbox.setSpacing(20);
 		vbox.setAlignment(Pos.CENTER);
 
@@ -353,10 +439,11 @@ public class WordGuessClient extends Application {
 		start = new Button("Start");
 		continueBtn = new Button( "Continue");
 
+		letterBank = new Text("Letters you have guessed so far: ");
 		curCategory = new Text("Current Category: ");
 		guessesLeft = new Text("You have 6 guesses left");
 
-		Text playingMsg = new Text("Your word so far is: ");
+		playingMsg = new Text("Your word so far is: ");
 		curWord = new Text( "?");
 		HBox hbox1 = new HBox(playingMsg, curWord);
 
@@ -368,7 +455,7 @@ public class WordGuessClient extends Application {
 
 		submitGuess = new Button("Finalize Guess");
 
-		playSceneVbox = new VBox(start, curCategory, guessesLeft, hbox1, hbox2, submitGuess, continueBtn);
+		playSceneVbox = new VBox(start,letterBank, curCategory, guessesLeft, hbox1, hbox2, submitGuess, continueBtn);
 		playSceneVbox.setSpacing(20);
 		playSceneVbox.setAlignment(Pos.CENTER);
 

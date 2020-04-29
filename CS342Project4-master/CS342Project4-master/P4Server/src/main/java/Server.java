@@ -9,7 +9,7 @@ import java.util.Scanner;
 import java.util.function.Consumer;
 
 public class Server {
-    int count = 1;
+    int count = 0;
     int totalPlayers = 0;
     HashMap<Integer, ArrayList> words = new HashMap<>();
     HashMap<Integer, String> currentWord = new HashMap<>();
@@ -34,16 +34,11 @@ public class Server {
     		
 
 			char[] wordChar = word.toCharArray();
-			System.out.println("WORKS22");
 			char ch = letter.charAt(0);
-			System.out.println("WORKS23");
 			char[] displayWordLetters = previousDisplay.toCharArray();
-			System.out.println("WORKS24");
 
 			for (int i = 0; i < previousDisplay.length(); ++i) {
-				System.out.println("WORKS24.1");
 				if (wordChar[i] == ch) {
-					System.out.println("WORKS24.2");
 					displayWordLetters[i] = ch;
 				}
 			}
@@ -75,13 +70,14 @@ public class Server {
                 while (true) {
 
                     ClientThread c = new ClientThread(mysocket.accept(), count);
-                    callback.accept("client has connected to server: " + "client #" + count);
-                    clients.add(c);
-                    callback.accept("Number of clients:" + clients.size());
-
-                    c.start();
                     count++;
                     totalPlayers++;
+                    callback.accept("client has connected to server: " + "client ID" + totalPlayers);
+                    clients.add(c);
+                    callback.accept("Number of clients:" + count);
+
+                    c.start();
+                    
 
                 }
             }//end of try
@@ -137,91 +133,72 @@ public class Server {
 
                     GameInfo data = (GameInfo) in.readObject(); // read in data
                     System.out.println( "RECEIVING GAMEINFO OBJECT"); data.display(); // debugging info
-
-                    // If a category has just been selected, assign the player a word from that category
-                    // *** maybe turn bits of this into a function cuz there's a lot of repetitive code
-                    // TODO: FIX: newWord = animals.get((int) Math.round(Math.random() * 100 % animals.size()));
-                    // The random number generation is buggy and sometimes results in an exception (out of bound?)
-                    // TODO: checking whether the word has already been played (use words Map - throwing me exception)
-                    // TODO: after implementing the above, empty the map if the client presses play again
                     if ( data.status.compareTo("Chose Category") == 0) {
-                        System.out.println("WORKS1");
+                    	callback.accept("Client : " + data.clientID+ " Status: Chose Category");
                         String newWord = "";
                         Random random = new Random();
                         if(!words.containsKey(data.clientID)) {
                         	words.put(data.clientID, new ArrayList<String>());
                         }
                         if ( data.category == 0) {
-                            System.out.println("WORKS2");
-//                            data.animalGuesses++;
                             do {
                                 newWord = animals.get(random.nextInt(animals.size()));
                             }
                             while ( words.get( data.clientID).contains( newWord));
+                            callback.accept("Client "+ data.clientID+ " chose the Animal category");
+                            callback.accept("Client's given word is "+newWord);
+                            callback.accept("------------------------------------");
                             ArrayList<String> temp = words.get(data.clientID);
                             temp.add(newWord);
                             words.put(data.clientID, temp);
                         }
                         if ( data.category == 1) {
-                            System.out.println("WORKS2");
-//                            data.instrumentGuesses++;
                             do {
                                 newWord = instruments.get(random.nextInt(instruments.size()));
                             }
                            while ( words.get( data.clientID).contains( newWord));
+                            callback.accept("Client "+ data.clientID+ " chose the Instrument category");
+                            callback.accept("Client's given word is "+newWord);
+                            callback.accept("------------------------------------");
                            ArrayList<String> temp = words.get(data.clientID);
                            temp.add(newWord);
                            words.put(data.clientID, temp);
                         }
                         
                         if ( data.category == 2) {
-                            System.out.println("WORKS2");
-//                            data.programmingGuesses++;
                             do {
                                 newWord = programs.get(random.nextInt(programs.size()));
                             }
-                            while ( words.get( data.clientID).contains( newWord) == false);
+                            while ( words.get( data.clientID).contains( newWord));
+                            callback.accept("Client "+ data.clientID+ " chose the Programming Concepts category");
+                            callback.accept("Client's given word is "+newWord);
+                            callback.accept("------------------------------------");
                             ArrayList<String> temp = words.get(data.clientID);
                             temp.add(newWord);
                             words.put(data.clientID, temp);
                         }
-                        System.out.println(newWord);
-                        System.out.println("WORKS3");
+                       
                         data.status = ""; // reset current game status
                         currentWord.put( data.clientID, newWord);
-                        System.out.println("WORKS3.5");
-//                        words.get( data.clientID).add( newWord);
-                        System.out.println("WORKS4");
 
                         data.displayWord = displayWordFunc(null,newWord,"", true);
                     }
-
+                    
+                    if(data.status.equals("new game")){
+                    	callback.accept("Client: "+data.clientID+" started a new games");
+                        callback.accept("------------------------------------");
+                    	words.put(data.clientID,new ArrayList<String>());
+                    }
 
                     // if a letter guess is made, check if it is correct and update game info
                     if ( data.status.compareTo("Made Guess") == 0) {
-                        System.out.println("WORKS20");
                         data.status = "";
+                        callback.accept("Client: "+data.clientID+" guessed: " + data.guessLetter);
+                        callback.accept("------------------------------------");
                         String letter = data.guessLetter;
+                        
                         if ( currentWord.get( new Integer( data.clientID)).contains( letter)) {
-                            System.out.println("WORKS21");
-                             /*
-                            char[] word = ( currentWord.get( new Integer( data.clientID))).toCharArray();
-                            System.out.println("WORKS22");
-                            char ch = letter.charAt(0);
-                            System.out.println("WORKS23");
-                            char[] displayWordLetters = data.displayWord.toCharArray();
-                            System.out.println("WORKS24");
-
-                            for ( int i = 0; i < data.displayWord.length(); ++i) {
-                                System.out.println("WORKS24.1");
-                                if ( word[ i] == ch) {
-                                    System.out.println("WORKS24.2");
-                                    displayWordLetters[ i] = ch;
-                                }
-                            }*/
-                            System.out.println("WORKS24.3");
                             data.displayWord = displayWordFunc(letter, currentWord.get( new Integer( data.clientID)), data.displayWord,false);
-                            System.out.println("WORKS25");
                         }
                         else
                             data.numOfIncorrectLetters++;
@@ -232,7 +209,6 @@ public class Server {
                         data.status = "Round Won";
 
                     games.put(data.clientID, data); // keep track of game
-                    System.out.println("WORKS5");
 
                     updateClient( data.clientID, data);
 
@@ -241,10 +217,12 @@ public class Server {
                 }
                 catch(Exception e) {
                     System.out.println(e.getCause());
-                    callback.accept("OOOOPPs...Something wrong with the socket from client: " + count + "....closing down!");
+                    callback.accept("OOOOPPs...Something wrong with the socket from a client: " + "....closing down!");
                     //updateClients(currentGameInfo);
+                    Server.this.count--;
                     //clients.remove(this);
-                    callback.accept("Number of clients:" + clients.size());
+                    
+                    callback.accept("Number of clients:" + Server.this.count);
                     break;
                 }
             }
